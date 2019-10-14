@@ -55,7 +55,7 @@ defmodule ModuleGenerator do
 
   def createModule(module_name) do
     module_path = convertModuleNameToPath(module_name)
-    IO.puts(IO.ANSI.format([:black, :green, "* #{module_path}"]))
+    IO.puts(IO.ANSI.format([:black, :green, "* #{Path.join("lib", module_path)}"]))
 
     createFile(
       module_name,
@@ -67,7 +67,7 @@ defmodule ModuleGenerator do
 
   def createTestModule(module_name) do
     test_path = convertModuleNameToTestPath(module_name)
-    IO.puts(IO.ANSI.format([:black, :green, "* #{test_path}"]))
+    IO.puts(IO.ANSI.format([:black, :green, "* #{Path.join("test", test_path)}"]))
 
     createFile(
       module_name,
