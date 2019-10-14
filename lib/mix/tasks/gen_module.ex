@@ -29,7 +29,14 @@ defmodule Mix.Tasks.GenModule do
   end
 
   def run_command({:module, module_name}) do
-    IO.puts("generating module and tests")
-    {:ok} = ModuleGenerator.generate(module_name)
+    IO.puts("generating module and tests for #{module_name}")
+
+    case ModuleGenerator.generate(module_name) do
+      {:ko, reason} ->
+        IO.puts(IO.ANSI.format([:black, :red, "Failed: #{reason}"]))
+
+      {:ok} ->
+        nil
+    end
   end
 end
