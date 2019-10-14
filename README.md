@@ -5,10 +5,13 @@
 
 ## Installation
 
-```elixir
-@deps [
-  module_generator: "~> 0.1.0"
-]
+```shell
+mix archive.install github savoisn/module_generator
+```
+
+## Usage
+```shell
+mix gen_module MyModule.MySubModule
 ```
 
 ## License
