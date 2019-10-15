@@ -49,10 +49,10 @@ defmodule ModuleGeneratorTest do
     module_name = "MyModule.MySubModule"
     module_path = root <> "/lib/my_module/my_sub_module.ex"
 
-    {:ok, return_module_path} = ModuleGenerator.createModule(module_name)
-    assert return_module_path == module_path
+    under_test = fn -> {:ok, ^module_path} = ModuleGenerator.createModule(module_name) end
+    capture_io(under_test)
 
-    assert File.exists?(return_module_path)
+    assert File.exists?(module_path)
   end
 
   test "create test file based on Module name" do
@@ -60,10 +60,10 @@ defmodule ModuleGeneratorTest do
     module_name = "MyModule.MySubModule"
     module_path = root <> "/test/my_module/my_sub_module_test.exs"
 
-    {:ok, return_module_path} = ModuleGenerator.createTestModule(module_name)
-    assert return_module_path == module_path
+    under_test = fn -> {:ok, ^module_path} = ModuleGenerator.createTestModule(module_name) end
+    capture_io(under_test)
 
-    assert File.exists?(return_module_path)
+    assert File.exists?(module_path)
   end
 
   test "files doesn't exists" do
@@ -73,28 +73,37 @@ defmodule ModuleGeneratorTest do
 
   test "return true if module exists" do
     module_name = "MyModule.MySubModule"
-    {:ok, return_module_path} = ModuleGenerator.createModule(module_name)
-    assert true == ModuleGenerator.filesAlreadyExists?(module_name)
+    under_test = fn -> {:ok, _} = ModuleGenerator.createModule(module_name) end
+    capture_io(under_test)
+    assert true == ModuleGenerator.fileModuleAlreadyExists?(module_name)
   end
 
   test "return true if test module exists" do
     module_name = "MyModule.MySubModule"
-    {:ok, return_module_path} = ModuleGenerator.createTestModule(module_name)
+    under_test = fn -> {:ok, _} = ModuleGenerator.createTestModule(module_name) end
+    capture_io(under_test)
+    assert true == ModuleGenerator.fileTestModuleAlreadyExists?(module_name)
+  end
+
+  test "return true if both module exists" do
+    module_name = "MyModule.MySubModule"
+    under_test = fn -> {:ok, _} = ModuleGenerator.createModule(module_name) end
+    capture_io(under_test)
+    under_test = fn -> {:ok, _} = ModuleGenerator.createTestModule(module_name) end
+    capture_io(under_test)
     assert true == ModuleGenerator.filesAlreadyExists?(module_name)
   end
 
   test "all together - passing case" do
     module_name = "MyModule.MySubModule"
-    {:ok} = ModuleGenerator.generate(module_name)
+    under_test = fn -> {:ok} = ModuleGenerator.generate(module_name) end
+    capture_io(under_test)
   end
 
   test "all together - file already exists" do
     module_name = "MyModule.MySubModule"
-    {:ok} = ModuleGenerator.generate(module_name)
-  end
-
-  @tag :skip
-  test "test mix task" do
+    under_test = fn -> {:ok} = ModuleGenerator.generate(module_name) end
+    capture_io(under_test)
   end
 
   ############################################################
@@ -105,24 +114,5 @@ defmodule ModuleGeneratorTest do
 
   defp assert_file(file) do
     assert File.regular?(file), "Expected #{file} to exist, but does not"
-  end
-
-  defp assert_file(file, matcher) when is_function(matcher, 1) do
-    assert_file(file)
-    matcher.(File.read!(file))
-  end
-
-  defp assert_file(file, match) do
-    assert_file(file, &assert(&1 =~ match))
-  end
-
-  def in_tmp(%{setup: setup, test: tests}) do
-    project_name = "module_generator"
-
-    System.tmp_dir!()
-    |> File.cd!(fn ->
-      setup.()
-      tests.()
-    end)
   end
 end

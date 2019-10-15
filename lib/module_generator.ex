@@ -35,7 +35,7 @@ defmodule ModuleGenerator do
     # correct the /_
     module_path = List.to_string(newcharlist)
     regex = ~r/\/_/
-    corrected_module_path = Regex.replace(regex, module_path, "/")
+    Regex.replace(regex, module_path, "/")
   end
 
   def convertChar(char, 0) do
@@ -55,36 +55,80 @@ defmodule ModuleGenerator do
 
   def createModule(module_name) do
     module_path = convertModuleNameToPath(module_name)
-    IO.puts(IO.ANSI.format([:black, :green, "* #{Path.join("lib", module_path)}"]))
 
-    createFile(
-      module_name,
-      module_path,
-      "/lib",
-      Template.module_template(module_name)
-    )
+    case getFilePath(module_path, "lib") do
+      {:ok, full_module_path} ->
+        template = Template.module_template(module_name)
+        createFileIfNotExist(full_module_path, template)
+
+      {:ko, :not_a_mix_project} ->
+        {:ko, :not_a_mix_project}
+    end
   end
 
   def createTestModule(module_name) do
     test_path = convertModuleNameToTestPath(module_name)
-    IO.puts(IO.ANSI.format([:black, :green, "* #{Path.join("test", test_path)}"]))
 
-    createFile(
-      module_name,
-      test_path,
-      "/test",
-      Template.test_template(module_name)
-    )
+    case getFilePath(test_path, "test") do
+      {:ok, test_module_path} ->
+        template = Template.test_template(module_name)
+        createFileIfNotExist(test_module_path, template)
+
+      {:ko, :not_a_mix_project} ->
+        {:ko, :not_a_mix_project}
+    end
   end
 
-  def createFile(module_name, module_path, folder, template) do
+  def createFileIfNotExist(module_path, template) do
+    case not File.exists?(module_path) do
+      true ->
+        IO.puts(IO.ANSI.format([:black, :green, "* #{module_path}"]))
+
+        createFile(module_path, template)
+
+      false ->
+        IO.puts(IO.ANSI.format([:black, :yellow, "* #{module_path} - ignored"]))
+        {:ok, :ignored}
+    end
+  end
+
+  def createFile(module_path, template) do
+    File.mkdir_p!(Path.dirname(module_path))
+    File.write!(module_path, template)
+    {:ok, module_path}
+  end
+
+  def getFilePath(module_path, folder) do
     case findRoot(File.cwd!()) do
       {:ok, root} ->
-        lib_path = root <> folder <> "/"
-        module_path = lib_path <> module_path
-        File.mkdir_p!(Path.dirname(module_path))
-        File.write!(module_path, template)
-        {:ok, module_path}
+        lib_path = Path.join(root, folder)
+        {:ok, Path.join(lib_path, module_path)}
+
+      {:ko, :enoent} ->
+        {:ko, :not_a_mix_project}
+    end
+  end
+
+  def fileModuleAlreadyExists?(module_name) do
+    case findRoot(File.cwd!()) do
+      {:ok, root} ->
+        module_path = convertModuleNameToPath(module_name)
+        lib_path = Path.join(root, "/lib/")
+        full_module_path = Path.join(lib_path, module_path)
+        File.exists?(full_module_path)
+
+      {:ko, :enoent} ->
+        {:ko, :not_a_mix_project}
+    end
+  end
+
+  def fileTestModuleAlreadyExists?(module_name) do
+    case findRoot(File.cwd!()) do
+      {:ok, root} ->
+        module_path = convertModuleNameToTestPath(module_name)
+        lib_path = Path.join(root, "/test/")
+        full_module_path = Path.join(lib_path, module_path)
+        File.exists?(full_module_path)
 
       {:ko, :enoent} ->
         {:ko, :not_a_mix_project}
@@ -92,30 +136,19 @@ defmodule ModuleGenerator do
   end
 
   def filesAlreadyExists?(module_name) do
-    case findRoot(File.cwd!()) do
-      {:ok, root} ->
-        lib_path = root <> "/lib/"
-        test_path = root <> "/test/"
-        module_path = convertModuleNameToPath(module_name)
-        test_module_path = convertModuleNameToTestPath(module_name)
-        full_module_path = lib_path <> module_path
-        full_test_path = test_path <> test_module_path
-        File.exists?(full_module_path) || File.exists?(full_test_path)
-
-      {:ko, :enoent} ->
-        {:ko, :not_a_mix_project}
-    end
+    fileModuleAlreadyExists?(module_name) && fileTestModuleAlreadyExists?(module_name)
   end
 
   def generate(module_name) do
-    case filesAlreadyExists?(module_name) do
-      false ->
+    case not filesAlreadyExists?(module_name) do
+      true ->
         {:ok, _} = createModule(module_name)
         {:ok, _} = createTestModule(module_name)
-        {:ok}
 
-      true ->
-        {:ko, "Files already Exist"}
+      false ->
+        IO.puts(IO.ANSI.format([:black, :red, "File already exists"]))
     end
+
+    {:ok}
   end
 end

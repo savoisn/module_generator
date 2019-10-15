@@ -11,7 +11,7 @@ defmodule Template do
 
   def test_template(module_name) do
     """
-      defmodule #{module_name}_test do
+      defmodule #{module_name}Test do
         
         use ExUnit.Case
         # doctest ModuleGenerator
@@ -21,6 +21,7 @@ defmodule Template do
 
           on_exit(fn ->
             #do something when test exits
+            nil
           end)
         end
 
