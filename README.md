@@ -1,7 +1,6 @@
 # ModuleGenerator
 
-> TODO: Add description**
-
+Generate Module with its associated test with a unique Mix Task
 
 ## Installation
 
@@ -16,7 +15,7 @@ mix gen_module MyModule.MySubModule
 
 ## License
 
-> TODO: Add license
+explained here : [LICENSE.md](./LICENSE.md)
 
 ----
 Created:  2019-10-12Z

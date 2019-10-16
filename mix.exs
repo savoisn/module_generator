@@ -2,7 +2,7 @@ defmodule ModuleGenerator.Mixfile do
   use Mix.Project
 
   @name :module_generator
-  @version "0.1.0"
+  @version "1.0.0"
 
   @deps [
     {:mix_test_watch, "~> 0.8", only: :dev, runtime: false}
