@@ -1,4 +1,6 @@
 defmodule ModuleGenerator do
+  alias ModuleGenerator.Template
+
   def findRoot(path) when path == "/" do
     case File.exists?(Path.join(path, "mix.exs")) do
       true -> {:ok, path}

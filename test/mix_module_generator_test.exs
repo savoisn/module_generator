@@ -24,7 +24,7 @@ defmodule MixModuleGeneratorTest do
         assert_file("test/my_module/my_sub_module_test.exs", ~r/defmodule #{module_name}Test/)
 
         assert return_value ==
-                 "generating module and tests for MyModule.MySubModule\n\e[30m\e[32m* /tmp/module_generator_test/dummy/lib/my_module/my_sub_module.ex\e[0m\n\e[30m\e[32m* /tmp/module_generator_test/dummy/test/my_module/my_sub_module_test.exs\e[0m\n"
+                 "Generating Module and Tests for MyModule.MySubModule\n\e[30m\e[32m* /tmp/module_generator_test/dummy/lib/my_module/my_sub_module.ex\e[0m\n\e[30m\e[32m* /tmp/module_generator_test/dummy/test/my_module/my_sub_module_test.exs\e[0m\n"
       end
     })
   end
