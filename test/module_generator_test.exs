@@ -1,4 +1,5 @@
 defmodule ModuleGeneratorTest do
+  alias ModuleGenerator.FileManager
   use ExUnit.Case
   # doctest ModuleGenerator
   import ExUnit.CaptureIO
@@ -20,28 +21,6 @@ defmodule ModuleGeneratorTest do
       File.rm_rf(files_test_path)
       File.cd(current_path)
     end)
-  end
-
-  test "find mix.exs file and return root path" do
-    root = File.cwd!()
-
-    assert ModuleGenerator.findRoot(root) == {:ok, root}
-
-    lib = File.cwd!() <> "/lib"
-    assert ModuleGenerator.findRoot(lib) == {:ok, root}
-
-    test_path = File.cwd!() <> "/test"
-    assert ModuleGenerator.findRoot(test_path) == {:ok, root}
-
-    no_good_path = "/tmp"
-    assert ModuleGenerator.findRoot(no_good_path) == {:ko, :enoent}
-  end
-
-  test "convert ModuleName to path" do
-    module_name = "MyModyle.MySubModule"
-    module_path = "my_modyle/my_sub_module.ex"
-
-    ^module_path = ModuleGenerator.convertModuleNameToPath(module_name)
   end
 
   test "create module file based on Module name" do
@@ -75,14 +54,14 @@ defmodule ModuleGeneratorTest do
     module_name = "MyModule.MySubModule"
     under_test = fn -> {:ok, _} = ModuleGenerator.createModule(module_name) end
     capture_io(under_test)
-    assert true == ModuleGenerator.fileModuleAlreadyExists?(module_name)
+    assert true == FileManager.fileModuleAlreadyExists?(module_name)
   end
 
   test "return true if test module exists" do
     module_name = "MyModule.MySubModule"
     under_test = fn -> {:ok, _} = ModuleGenerator.createTestModule(module_name) end
     capture_io(under_test)
-    assert true == ModuleGenerator.fileTestModuleAlreadyExists?(module_name)
+    assert true == FileManager.fileTestModuleAlreadyExists?(module_name)
   end
 
   test "return true if both module exists" do

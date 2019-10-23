@@ -12,6 +12,10 @@ defmodule Mix.Tasks.GenModule do
   def parse_command(["help"]), do: :help
   def parse_command(["-h"]), do: :help
 
+  def parse_command([module_name, "--struct" | struct_fields]) do
+    {:struct, module_name, struct_fields}
+  end
+
   def parse_command([module_name]) do
     {:module, module_name}
   end
@@ -22,6 +26,11 @@ defmodule Mix.Tasks.GenModule do
     IO.puts("mix gen_module MyModule.MySubModule")
 
     exit(:normal)
+  end
+
+  def run_command({:struct, module_name, struct_fields}) do
+    IO.puts("Generating Struct with name : #{module_name}")
+    IO.inspect(struct_fields)
   end
 
   def run_command(:help) do

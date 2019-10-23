@@ -45,4 +45,17 @@ defmodule ModuleGenerator.Template do
     end
     """
   end
+
+  def struct_template(struct_name) do
+    """
+    defmodule #{struct_name} do
+      defstruct value: nil
+
+      @type t() :: %__MODULE__{
+              value: integer()
+            }
+      
+    end
+    """
+  end
 end
