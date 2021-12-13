@@ -37,7 +37,18 @@ defmodule ModuleGenerator.PathManager do
       end)
 
     # correct the /_
-    module_path = List.to_string(newcharlist)
+    module_path =
+      List.to_string(newcharlist)
+      |> then(fn string ->
+        Regex.replace(
+          ~r/\d+/,
+          string,
+          fn a, _ ->
+            "_#{a}"
+          end
+        )
+      end)
+
     regex = ~r/\/_/
     Regex.replace(regex, module_path, "/")
   end

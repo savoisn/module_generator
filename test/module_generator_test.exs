@@ -23,6 +23,29 @@ defmodule ModuleGeneratorTest do
     end)
   end
 
+  test "create module file based on Module name without submodule" do
+    root = File.cwd!()
+    module_name = "MyModule"
+    module_path = root <> "/lib/my_module.ex"
+
+    under_test = fn -> {:ok, ^module_path} = ModuleGenerator.createModule(module_name) end
+    capture_io(under_test)
+
+    assert File.exists?(module_path)
+  end
+
+  test "create module test based on Module name without submodule" do
+    root = File.cwd!()
+    module_name = "MyModule"
+    module_path = root <> "/test/my_module_test.exs"
+
+    under_test = fn -> {:ok, ^module_path} = ModuleGenerator.createTestModule(module_name) end
+
+    capture_io(under_test)
+
+    assert File.exists?(module_path)
+  end
+
   test "create module file based on Module name" do
     root = File.cwd!()
     module_name = "MyModule.MySubModule"

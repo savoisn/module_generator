@@ -28,7 +28,8 @@ defmodule ModuleGenerator.StructGeneratorTest do
     root = File.cwd!()
     module_name = "MyModule.MyStruct"
     module_path = root <> "/lib/my_module/my_struct.ex"
-    under_test = fn -> {:ok, ^module_path} = StructGenerator.createStruct(module_name) end
+    fields = []
+    under_test = fn -> {:ok, ^module_path} = StructGenerator.createStruct(module_name, fields) end
     capture_io(under_test)
   end
 

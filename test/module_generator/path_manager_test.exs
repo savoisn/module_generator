@@ -33,4 +33,22 @@ defmodule ModuleGenerator.PathManagerTest do
 
     ^module_path = PathManager.convertModuleNameToPath(module_name)
   end
+
+  test "construct path single module" do
+    module_name = "MySubModule"
+    module_path = "my_sub_module"
+    ^module_path = PathManager.constructPathFromModule(module_name)
+  end
+
+  test "construct path single_module and submodule" do
+    module_name = "MyModyle.MySubModule"
+    module_path = "my_modyle/my_sub_module"
+    ^module_path = PathManager.constructPathFromModule(module_name)
+  end
+
+  test "construct path single_module and submodule and numbers" do
+    module_name = "MyModyle.MySubModule03"
+    module_path = "my_modyle/my_sub_module_03"
+    ^module_path = PathManager.constructPathFromModule(module_name)
+  end
 end

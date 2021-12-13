@@ -13,6 +13,10 @@ mix archive.install github savoisn/module_generator
 mix gen_module MyModule.MySubModule
 ```
 
+## Debug
+
+mix archive.install 
+
 ## License
 
 explained here : [LICENSE.md](./LICENSE.md)

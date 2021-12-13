@@ -46,16 +46,63 @@ defmodule ModuleGenerator.Template do
     """
   end
 
-  def struct_template(struct_name) do
+  def struct_template(struct_name, fields) do
     """
-    defmodule #{struct_name} do
-      defstruct value: nil
-
+    defmodule #{struct_name} do#{get_enforced_keys(fields)}
+      defstruct #{get_fields(fields)}
       @type t() :: %__MODULE__{
-              value: integer()
+              #{get_fields_types(fields)}
             }
-      
     end
     """
+  end
+
+  def get_enforced_keys(fields) do
+    case get_mandatory_fields(fields) do
+      "" -> nil
+      str_fields -> "\n  @enforce_keys [#{str_fields}]"
+    end
+  end
+
+  def get_mandatory_fields(fields) do
+    result =
+      Enum.reduce(fields, "", fn item, acc ->
+        [field_name, _type] = String.split(item, ":")
+
+        if String.starts_with?(field_name, "*") do
+          "#{acc}:#{String.slice(field_name, 1..-1)}, "
+        else
+          acc
+        end
+      end)
+
+    # ugly but fast to implement
+    String.slice(result, 0..-3)
+  end
+
+  def get_fields(fields) do
+    Enum.map_join(fields, ",\n            ", fn item ->
+      [field_name, _type] = String.split(item, ":")
+      "#{stripchars(field_name, "*")}: nil"
+    end)
+  end
+
+  def get_fields_types(fields) do
+    Enum.map_join(fields, ",\n          ", fn item ->
+      [field_name, type] = String.split(item, ":")
+      "#{stripchars(field_name, "*")}: #{get_type(type)}"
+    end)
+  end
+
+  def stripchars(str, chars) do
+    String.replace(str, ~r/[#{chars}]/, "")
+  end
+
+  def get_type(type) do
+    case type do
+      "integer" -> "integer()"
+      "string" -> "String.t()"
+      _ -> "#{type}.t()"
+    end
   end
 end
